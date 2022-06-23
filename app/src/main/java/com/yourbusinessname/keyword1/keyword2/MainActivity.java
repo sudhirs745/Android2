@@ -52,6 +52,10 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
+import com.onesignal.OSPermissionSubscriptionState;
+import com.onesignal.OSSubscriptionObserver;
+import com.onesignal.OSSubscriptionStateChanges;
+import com.onesignal.OneSignal;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +68,7 @@ import java.util.List;
 
 import static com.yourbusinessname.keyword1.keyword2.Config.PURCHASE_LICENSE_KEY;
 
-public class MainActivity extends AppCompatActivity implements BillingProcessor.IBillingHandler {
+public class MainActivity extends AppCompatActivity implements OSSubscriptionObserver, BillingProcessor.IBillingHandler {
 
     private WebView webView;
     private View offlineLayout;
@@ -119,9 +123,9 @@ public class MainActivity extends AppCompatActivity implements BillingProcessor.
         webviewCount = 0;
         final String myOSurl = Config.PURCHASECODE;
 
-//        if (Config.PUSH_ENABLED) {
-//            OneSignal.addSubscriptionObserver(this);
-//        }
+        if (Config.PUSH_ENABLED) {
+            OneSignal.addSubscriptionObserver(this);
+        }
 
         if (savedInstanceState == null) {
             AlertManager.appLaunched(this);
@@ -452,12 +456,12 @@ public class MainActivity extends AppCompatActivity implements BillingProcessor.
             webView.loadUrl(deepLinkingURL);
         } else {
             String urlExt = "";
-//            if (Config.PUSH_ENABLED) {
-//                OSPermissionSubscriptionState status = OneSignal.getPermissionSubscriptionState();
-//                String userID = status.getSubscriptionStatus().getUserId();
-//
-//                urlExt = ((Config.PUSH_ENHANCE_WEBVIEW_URL && !TextUtils.isEmpty(userID)) ? String.format("%sonesignal_push_id=%s", (Config.HOME_URL.contains("?") ? "&" : "?"), userID) : "");
-//            }
+            if (Config.PUSH_ENABLED) {
+                OSPermissionSubscriptionState status = OneSignal.getPermissionSubscriptionState();
+                String userID = status.getSubscriptionStatus().getUserId();
+
+                urlExt = ((Config.PUSH_ENHANCE_WEBVIEW_URL && !TextUtils.isEmpty(userID)) ? String.format("%sonesignal_push_id=%s", (Config.HOME_URL.contains("?") ? "&" : "?"), userID) : "");
+            }
             if (Config.USE_LOCAL_HTML_FOLDER) {
                 webView.loadUrl("file:///android_asset/index.html");
             } else {
@@ -565,21 +569,21 @@ public class MainActivity extends AppCompatActivity implements BillingProcessor.
         }
     }
 
-//    @Override
-//    public void onOSSubscriptionChanged(OSSubscriptionStateChanges stateChanges) {
-//        if (Config.PUSH_ENABLED) {
-//            if (!stateChanges.getFrom().getSubscribed() && stateChanges.getTo().getSubscribed()) {
-//                String userId = stateChanges.getTo().getUserId();
-//                Log.i("Debug", "userId: " + userId);
-//
-//                if (Config.PUSH_RELOAD_ON_USERID) {
-//                    loadMainUrl();
-//                }
-//            }
-//
-//            Log.i("Debug", "onOSPermissionChanged: " + stateChanges);
-//        }
-//    }
+    @Override
+    public void onOSSubscriptionChanged(OSSubscriptionStateChanges stateChanges) {
+        if (Config.PUSH_ENABLED) {
+            if (!stateChanges.getFrom().getSubscribed() && stateChanges.getTo().getSubscribed()) {
+                String userId = stateChanges.getTo().getUserId();
+                Log.i("Debug", "userId: " + userId);
+
+                if (Config.PUSH_RELOAD_ON_USERID) {
+                    loadMainUrl();
+                }
+            }
+
+            Log.i("Debug", "onOSPermissionChanged: " + stateChanges);
+        }
+    }
 
     @Override
     public void onPause() {

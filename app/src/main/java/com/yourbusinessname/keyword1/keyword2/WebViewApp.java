@@ -2,6 +2,8 @@ package com.yourbusinessname.keyword1.keyword2;
 
 import android.app.Application;
 
+import com.onesignal.OneSignal;
+
 public class WebViewApp extends Application
 {
     @Override
@@ -9,14 +11,14 @@ public class WebViewApp extends Application
     {
         super.onCreate();
 
-//        if(Config.PUSH_ENABLED)
-//        {
-//            OneSignal.startInit(this)
-//                    .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-//                    .setNotificationOpenedHandler(new MyNotificationOpenedHandler(this))
-//                    .unsubscribeWhenNotificationsAreDisabled(true)
-//                    .init();
-//
-//        }
+        if(Config.PUSH_ENABLED)
+        {
+            OneSignal.startInit(this)
+                    .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                    .setNotificationOpenedHandler(new MyNotificationOpenedHandler(this))
+                    .unsubscribeWhenNotificationsAreDisabled(true)
+                    .init();
+
+        }
     }
 }
